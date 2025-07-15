@@ -48,6 +48,10 @@
             padding: 20px;
             overflow-x: hidden;
         }
+        
+        .hidden {
+            display: none;
+        }
 
         /* --- Header styled according to guide --- */
         .header {
@@ -116,11 +120,20 @@
         .find-me-btn:hover {
             background-color: var(--brand-primary-dark);
         }
+        
+        /* --- Main Content Layout --- */
+        .main-content {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
 
         /* --- Map Container --- */
         #map {
-            width: 100%;
-            max-width: 1000px;
+            flex: 1; /* Allow map to grow */
+            min-width: 300px; /* Prevent map from getting too small */
             height: 55vh;
             min-height: 400px;
             background-color: #e0e0e0;
@@ -128,6 +141,74 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
             z-index: 1;
+        }
+
+        /* --- Filter Container --- */
+        .filter-container {
+            flex-basis: 220px;
+            flex-grow: 0;
+            background-color: var(--neutral-white);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            height: fit-content;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-container h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .filter-option label {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            user-select: none;
+        }
+
+        .filter-option input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            background-color: #fff;
+            border: 2px solid var(--brand-accent);
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .filter-option input[type="checkbox"]::after {
+            content: '✔';
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            display: none;
+        }
+
+        .filter-option input[type="checkbox"]:checked {
+            background-color: var(--brand-accent-2);
+            border-color: var(--brand-accent-2);
+        }
+
+        .filter-option input[type="checkbox"]:checked::after {
+            display: block;
         }
 
         /* --- Custom Marker Styling --- */
@@ -172,7 +253,7 @@
 
         /* --- Leaflet Popup Customization --- */
         .leaflet-popup-content-wrapper { background: var(--neutral-white); color: var(--brand-primary-dark); border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); border: 1px solid var(--border-color); }
-        .leaflet-popup-content { margin: 18px; font-size: 16px; line-height: 1.6; }
+        .leaflet-popup-content { margin: 18px; font-size: 16px; line-height: 1.6; width: auto !important; }
         .leaflet-popup-content h2 { color: var(--brand-primary); font-size: 20px; font-weight: 700; margin: 0 0 5px 0; }
         .leaflet-popup-content h3 { color: #6c757d; font-size: 14px; font-style: italic; margin: 0 0 12px 0; font-weight: 400; }
         .leaflet-popup-tip { background: var(--neutral-white); }
@@ -209,19 +290,47 @@
             color: var(--brand-primary-dark);
         }
 
-        /* --- Itinerary List --- */
+        /* --- Itinerary List (Collapsible) --- */
         .itinerary-container {
             width: 100%;
             max-width: 1000px;
             margin-top: 20px;
         }
-        .itinerary-container h2 {
+        .itinerary-header {
             font-size: 24px;
             font-weight: 700;
             color: var(--brand-primary);
-            margin-bottom: 15px;
+            margin-bottom: 0;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
+            padding: 10px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        .chevron-icon {
+            width: 12px;
+            height: 12px;
+            border-style: solid;
+            border-color: var(--brand-primary);
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+            transition: transform 0.3s ease-in-out;
+        }
+        .itinerary-container.is-open .chevron-icon {
+            transform: rotate(-135deg);
+        }
+        .itinerary-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            padding: 0;
+        }
+        .itinerary-container.is-open .itinerary-content {
+            max-height: 40vh; /* Max height for the dropdown */
+            overflow-y: auto;
+            padding-top: 15px;
         }
         #itinerary-list {
             list-style: none;
@@ -234,14 +343,78 @@
             padding: 15px;
             margin-bottom: 10px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             font-size: 16px;
+            transition: background-color 0.2s, box-shadow 0.2s;
         }
-         #itinerary-list li strong {
+        .sortable-ghost {
+            opacity: 0.4;
+            background: var(--brand-secondary);
+        }
+        #itinerary-list li:hover {
+            background-color: #f8f5fc;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        #itinerary-list strong {
             font-weight: 700;
             color: var(--brand-primary-dark);
-         }
+        }
+        .itinerary-item-info {
+            flex-grow: 1;
+            cursor: pointer;
+        }
+        .item-controls {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+            gap: 5px;
+        }
+        .drag-handle {
+            cursor: grab;
+            color: var(--brand-accent);
+            display: flex;
+            align-items: center;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        .remove-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remove-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--brand-accent);
+            transition: fill 0.2s;
+        }
+        .remove-btn:hover svg {
+            fill: var(--brand-accent-2);
+        }
+        #itinerary-placeholder {
+            color: #777;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        /* Responsive adjustment */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column-reverse; /* Stack filters on top of map */
+            }
+            .filter-container {
+                flex-basis: auto; /* Allow it to take full width */
+                width: 100%;
+            }
+        }
 
     </style>
 </head>
@@ -257,25 +430,45 @@
         <button id="find-me-btn" class="find-me-btn">Find Me</button>
     </div>
 
-    <div id="map"></div>
+    <div class="main-content">
+        <div id="map"></div>
+        <div id="filter-container" class="filter-container">
+            <h2>Filters</h2>
+            <div class="filter-option">
+                <input type="checkbox" id="filter-accessible">
+                <label for="filter-accessible">Wheelchair Accessible</label>
+            </div>
+            <div class="filter-option">
+                <input type="checkbox" id="filter-kid-friendly">
+                <label for="filter-kid-friendly">Kid-Friendly</label>
+            </div>
+        </div>
+    </div>
     
-    <div id="itinerary-container" class="itinerary-container" style="display: none;">
-        <h2>My Night Plan</h2>
-        <ul id="itinerary-list"></ul>
+    <div id="itinerary-container" class="itinerary-container hidden">
+        <div id="itinerary-header" class="itinerary-header">
+            <span>My Night Plan</span>
+            <span class="chevron-icon"></span>
+        </div>
+        <div class="itinerary-content">
+            <ul id="itinerary-list"></ul>
+            <div id="itinerary-placeholder">Your plan is empty. Click on a marker to add an exhibit!</div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const exhibits = [
-                { id: 'exhibit-1', title: 'Echoes of the City', artist: 'Anya Petrova', description: 'An immersive sound installation...', location: { lat: 43.6488, lng: -79.3887 } },
-                { id: 'exhibit-2', title: 'Luminous Dreams', artist: 'Kenji Tanaka', description: 'A series of large, glowing sculptures...', location: { lat: 43.6426, lng: -79.3871 } },
-                { id: 'exhibit-3', title: 'Concrete Canvas', artist: 'Maria Rodriguez', description: 'A dynamic projection mapping display...', location: { lat: 43.6534, lng: -79.3841 } },
-                { id: 'exhibit-4', title: 'River of Light', artist: 'David Chen', description: 'Thousands of floating, solar-powered lights...', location: { lat: 43.6390, lng: -79.3821 } },
-                { id: 'exhibit-5', title: 'The Digital Forest', artist: 'Future-Scapes Collective', description: 'An interactive forest of LED trees...', location: { lat: 43.6503, lng: -79.3594 } },
-                { id: 'exhibit-6', title: 'Forgotten Futures', artist: 'Parjad M.', description: 'A holographic display at Yonge-Dundas Square...', location: { lat: 43.6561, lng: -79.3802 } }
+                { id: 'exhibit-1', title: 'Echoes of the City', artist: 'Anya Petrova', description: 'An immersive sound installation...', location: { lat: 43.6488, lng: -79.3887 }, isAccessible: true, isKidFriendly: false },
+                { id: 'exhibit-2', title: 'Luminous Dreams', artist: 'Kenji Tanaka', description: 'A series of large, glowing sculptures...', location: { lat: 43.6426, lng: -79.3871 }, isAccessible: true, isKidFriendly: true },
+                { id: 'exhibit-3', title: 'Concrete Canvas', artist: 'Maria Rodriguez', description: 'A dynamic projection mapping display...', location: { lat: 43.6534, lng: -79.3841 }, isAccessible: false, isKidFriendly: false },
+                { id: 'exhibit-4', title: 'River of Light', artist: 'David Chen', description: 'Thousands of floating, solar-powered lights...', location: { lat: 43.6390, lng: -79.3821 }, isAccessible: true, isKidFriendly: true },
+                { id: 'exhibit-5', title: 'The Digital Forest', artist: 'Future-Scapes Collective', description: 'An interactive forest of LED trees...', location: { lat: 43.6503, lng: -79.3594 }, isAccessible: false, isKidFriendly: true },
+                { id: 'exhibit-6', title: 'Forgotten Futures', artist: 'Parjad M.', description: 'A holographic display at Yonge-Dundas Square...', location: { lat: 43.6561, lng: -79.3802 }, isAccessible: true, isKidFriendly: false }
             ];
 
             const map = L.map('map').setView([43.6532, -79.3832], 14);
@@ -286,49 +479,143 @@
 
             const markers = L.markerClusterGroup();
             const itineraryContainer = document.getElementById('itinerary-container');
+            const itineraryHeader = document.getElementById('itinerary-header');
             const itineraryList = document.getElementById('itinerary-list');
-            let nightPlan = [];
+            const itineraryPlaceholder = document.getElementById('itinerary-placeholder');
             let allMarkers = {};
+
+            // Load plan from localStorage or initialize as empty
+            let nightPlan = JSON.parse(localStorage.getItem('nightPlan')) || [];
+            
+            // State for filters
+            let filters = {
+                accessible: false,
+                kidFriendly: false
+            };
+
+            // --- SVG Icons ---
+            const dragIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle><circle cx="5" cy="5" r="1"></circle><circle cx="5" cy="12" r="1"></circle><circle cx="5" cy="19" r="1"></circle><circle cx="19" cy="5" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="19" cy="19" r="1"></circle></svg>`;
+            const trashIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6v18h18v-18h-18zm5 14c0 .552-.448 1-1 1s-1-.448-1-1v-10c0-.552.448-1 1-1s1 .448 1 1v10zm5 0c0 .552-.448 1-1 1s-1-.448-1-1v-10c0-.552.448-1 1-1s1 .448 1 1v10zm5 0c0 .552-.448 1-1 1s-1-.448-1-1v-10c0-.552.448-1 1-1s1 .448 1 1v10zm4-18h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711v2z"/></svg>`;
+
+
+            function savePlan() {
+                localStorage.setItem('nightPlan', JSON.stringify(nightPlan));
+            }
 
             function updateItineraryList() {
                 itineraryList.innerHTML = '';
                 if (nightPlan.length === 0) {
-                    itineraryContainer.style.display = 'none';
+                    itineraryContainer.classList.add('hidden');
                     return;
                 }
-                itineraryContainer.style.display = 'block';
+                
+                itineraryContainer.classList.remove('hidden');
+                itineraryList.classList.remove('hidden');
+                itineraryPlaceholder.classList.add('hidden');
+
                 nightPlan.forEach(exhibitId => {
                     const exhibit = exhibits.find(e => e.id === exhibitId);
+                    if (!exhibit) return;
+
                     const li = document.createElement('li');
-                    li.innerHTML = `<span><strong>${exhibit.title}</strong> by ${exhibit.artist}</span>`;
+                    li.dataset.id = exhibit.id; // Add data-id for sortable
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'itinerary-item-info';
+                    infoDiv.innerHTML = `<strong>${exhibit.title}</strong> by ${exhibit.artist}`;
+                    infoDiv.addEventListener('click', () => {
+                        const marker = allMarkers[exhibit.id];
+                        if (marker) {
+                            map.setView(marker.getLatLng(), 17);
+                            marker.openPopup();
+                        }
+                    });
+
+                    const itemControls = document.createElement('div');
+                    itemControls.className = 'item-controls';
+
+                    const dragHandle = document.createElement('span');
+                    dragHandle.className = 'drag-handle';
+                    dragHandle.innerHTML = dragIconSVG;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-btn';
+                    removeBtn.innerHTML = trashIconSVG;
+                    removeBtn.setAttribute('aria-label', `Remove ${exhibit.title}`);
+                    removeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent li click event from firing
+                        togglePlan(exhibit.id);
+                    });
+                    
+                    itemControls.appendChild(dragHandle);
+                    itemControls.appendChild(removeBtn);
+
+                    li.appendChild(infoDiv);
+                    li.appendChild(itemControls);
                     itineraryList.appendChild(li);
                 });
             }
 
             function togglePlan(exhibitId) {
+                const wasEmpty = nightPlan.length === 0;
                 const planIndex = nightPlan.indexOf(exhibitId);
                 const marker = allMarkers[exhibitId];
 
                 if (planIndex > -1) {
                     nightPlan.splice(planIndex, 1);
-                    marker.getElement().classList.remove('in-plan');
+                    marker.getElement()?.classList.remove('in-plan');
                 } else {
                     nightPlan.push(exhibitId);
-                    marker.getElement().classList.add('in-plan');
+                    marker.getElement()?.classList.add('in-plan');
                 }
+                
+                savePlan();
                 updateItineraryList();
-                // Re-bind popup to update button state
-                marker.closePopup();
-                marker.openPopup();
+
+                if (wasEmpty && nightPlan.length > 0) {
+                    itineraryContainer.classList.add('is-open');
+                }
+
+                if (marker && marker.isPopupOpen()) {
+                    marker.closePopup();
+                    bindPopupContent(marker, exhibitId);
+                    marker.openPopup();
+                }
+            }
+            
+            function bindPopupContent(marker, exhibitId) {
+                const exhibit = exhibits.find(e => e.id === exhibitId);
+                const isPlanned = nightPlan.includes(exhibit.id);
+
+                const container = document.createElement('div');
+                container.innerHTML = `
+                    <h2>${exhibit.title}</h2>
+                    <h3>by ${exhibit.artist}</h3>
+                    <p>${exhibit.description}</p>
+                `;
+
+                const button = document.createElement('button');
+                button.className = `plan-button ${isPlanned ? 'secondary' : 'primary'}`;
+                button.textContent = isPlanned ? 'In My Plan' : 'Plan My Night';
+                button.addEventListener('click', () => togglePlan(exhibit.id));
+
+                container.appendChild(button);
+                marker.bindPopup(container);
             }
 
-            function populateMarkers(filter = '') {
+
+            function populateMarkers() {
                 markers.clearLayers();
                 allMarkers = {};
-                const lowerCaseFilter = filter.toLowerCase();
+                const lowerCaseFilter = document.getElementById('search-input').value.toLowerCase();
 
                 exhibits
-                    .filter(exhibit => exhibit.title.toLowerCase().includes(lowerCaseFilter) || exhibit.artist.toLowerCase().includes(lowerCaseFilter))
+                    .filter(exhibit => {
+                        const matchesSearch = exhibit.title.toLowerCase().includes(lowerCaseFilter) || exhibit.artist.toLowerCase().includes(lowerCaseFilter);
+                        const matchesAccessibility = !filters.accessible || exhibit.isAccessible;
+                        const matchesKidFriendly = !filters.kidFriendly || exhibit.isKidFriendly;
+                        return matchesSearch && matchesAccessibility && matchesKidFriendly;
+                    })
                     .forEach(exhibit => {
                         const isPlanned = nightPlan.includes(exhibit.id);
                         const customIcon = L.divIcon({
@@ -340,16 +627,10 @@
 
                         const marker = L.marker([exhibit.location.lat, exhibit.location.lng], { icon: customIcon });
                         
-                        const buttonClass = isPlanned ? 'secondary' : 'primary';
-                        const buttonText = isPlanned ? 'In My Plan' : 'Plan My Night';
+                        bindPopupContent(marker, exhibit.id);
+                        
+                        marker.on('popupopen', () => bindPopupContent(marker, exhibit.id));
 
-                        const popupContent = `
-                            <h2>${exhibit.title}</h2>
-                            <h3>by ${exhibit.artist}</h3>
-                            <p>${exhibit.description}</p>
-                            <button class="plan-button ${buttonClass}" onclick="window.togglePlan('${exhibit.id}')">${buttonText}</button>
-                        `;
-                        marker.bindPopup(popupContent);
                         markers.addLayer(marker);
                         allMarkers[exhibit.id] = marker;
                     });
@@ -357,18 +638,46 @@
                 map.addLayer(markers);
             }
             
-            window.togglePlan = togglePlan;
+            // --- Initial Setup ---
             populateMarkers();
+            updateItineraryList();
 
-            document.getElementById('search-input').addEventListener('input', (e) => populateMarkers(e.target.value));
+            // --- Initialize SortableJS for Drag and Drop ---
+            new Sortable(itineraryList, {
+                handle: '.drag-handle', // Restrict dragging to the handle
+                animation: 150,
+                ghostClass: 'sortable-ghost', // Class for the drop placeholder
+                onEnd: function (evt) {
+                    const movedItem = nightPlan.splice(evt.oldIndex, 1)[0];
+                    nightPlan.splice(evt.newIndex, 0, movedItem);
+                    savePlan();
+                },
+            });
+
+            // --- Event Listeners ---
+            document.getElementById('search-input').addEventListener('input', populateMarkers);
 
             document.getElementById('find-me-btn').addEventListener('click', () => {
                 map.locate({ setView: true, maxZoom: 16 });
             });
 
+            itineraryHeader.addEventListener('click', () => {
+                itineraryContainer.classList.toggle('is-open');
+            });
+
+            document.getElementById('filter-accessible').addEventListener('change', (e) => {
+                filters.accessible = e.target.checked;
+                populateMarkers();
+            });
+
+            document.getElementById('filter-kid-friendly').addEventListener('change', (e) => {
+                filters.kidFriendly = e.target.checked;
+                populateMarkers();
+            });
+
             map.on('locationfound', (e) => {
-                L.circle(e.latlng, {radius: e.accuracy, color: '#007bff', fillColor: '#007bff', fillOpacity: 0.2}).addTo(map);
-                L.marker(e.latlng).addTo(map).bindPopup("You are here!").openPopup();
+                L.circle(e.latlng, { radius: e.accuracy / 2, color: 'var(--brand-accent-2)', fillColor: 'var(--brand-accent-2)', fillOpacity: 0.2, weight: 1 }).addTo(map);
+                L.circleMarker(e.latlng, {radius: 8, color: 'var(--neutral-white)', fillColor: 'var(--brand-accent-2)', fillOpacity: 1, weight: 2}).addTo(map).bindPopup("You are here!").openPopup();
             });
 
             map.on('locationerror', (e) => alert(e.message));
