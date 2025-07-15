@@ -2,9 +2,6 @@
 
 An interactive, responsive, and user-friendly web application designed to help art enthusiasts explore and plan their night at Toronto's Nuit Blanche festival. This single-page application allows users to discover exhibits, filter them based on their needs, and build a personalized, draggable itinerary for the night.
 
-![Nuit Blanche Map Screenshot](https://placehold.co/800x500/002849/FFFFF3?text=App+Screenshot+Here)
-*(Suggestion: Replace the placeholder above with a screenshot of your running application!)*
-
 ---
 
 ## ✨ Features
